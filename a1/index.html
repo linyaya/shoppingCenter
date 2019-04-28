@@ -1,0 +1,223 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	  <title>Shopping Center</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+    $(document).ready(function(){
+
+      loadCategories();
+      loadInitialPage ();
+      loadCartNumber();
+      $("#cartIcon").click(loadCartContent);
+
+    });//end of document function
+
+    function loadCategories(){
+      $.get("handleCategoryDisplay.php",//url
+      function(data){
+        for (i=0; i<data.length; i++){
+          $("#category").append("<h2 id=itemCategory onclick=loadCategoryFirstPage(this)>"+data[i].itemCategory+"</h2><br>");
+        }
+      },//end of callback function
+      "json"//return data type
+    );//end of get
+    }// end of loadCategories function
+
+    function loadInitialPage(){
+      $("#items").empty();
+      $.get("handleItemDisplay.php?show=initial",//url
+      function(data){
+        for (i=0; i<data.length-1; i++){
+          appendItems1(data);
+        }//end of for
+        var maxPage = Math.ceil(data[data.length-1].itemCount/3);
+        var category = data[0].itemCategory;
+        appendItems2(data, 1, maxPage, category);
+      },//end of callback function
+      "json"//return data type
+    );//end of get
+    }//end of loadInitialPage
+
+
+    function loadCategoryFirstPage(elem){
+      $("#items").empty();
+      $.get("handleItemDisplay.php?show=specialCategory&category="+$(elem).text(),//url
+      function(data){
+        for (i=0; i<data.length-1; i++){
+          appendItems1(data);
+        }//end of for
+        var maxPage = Math.ceil(data[data.length-1].itemCount/3);
+        var category = data[0].itemCategory;
+        appendItems2(data, 1, maxPage, category);
+      },//end of callback function
+      "json"//return data type
+
+    );//end of get
+
+    }//end of loadCategoryFirstPage
+
+    function loadPreviousPage(currentCategory){
+      var currentPage = parseInt($("#page").attr("value"),10);
+      if (currentPage > 1){
+        var previousPage = currentPage-1;
+        var maxPage = parseInt($("#page").attr("max"),10);
+        $("#items").empty();
+          $.get("handleItemDisplay.php?show=specialPage&category="+currentCategory+"&page="+previousPage,//url
+          function(data){
+            for (i=0; i<data.length-1; i++){
+              appendItems1(data);
+            }//end of for
+            appendItems2(data, previousPage, maxPage, currentCategory);
+          },//end of callback function
+          "json"//return data type
+        );//end of get
+      }//end of if
+    }//end of loadPreviousPage
+
+    function loadNextPage(currentCategory){
+      var currentPage = parseInt($("#page").attr("value"),10);
+      var maxPage = parseInt($("#page").attr("max"),10);
+      if (currentPage < maxPage){
+        var nextPage = currentPage+1;
+        $("#items").empty();
+          $.get("handleItemDisplay.php?show=specialPage&category="+currentCategory+"&page="+nextPage,//url
+          function(data){
+            for (i=0; i<data.length-1; i++){
+              appendItems1(data);
+            }//end of for
+            appendItems2(data, nextPage, maxPage, currentCategory);
+          },//end of callback function
+          "json"//return data type
+        );//end of get
+      }//end of if
+    }//end of loadNextPage
+
+    function loadSpecifiedPage(val, currentCategory){
+      var currentPage = parseInt(val, 10);
+      var maxPage = parseInt($("#page").attr("max"),10);
+      if (currentPage>0 && currentPage<=maxPage){
+        $("#items").empty();
+          $.get("handleItemDisplay.php?show=specialPage&category="+currentCategory+"&page="+currentPage,//url
+          function(data){
+            for (i=0; i<data.length-1; i++){
+              appendItems1(data);
+            }//end of for
+            appendItems2(data, currentPage, maxPage, currentCategory);
+          },//end of callback function
+          "json"//return data type
+        );//end of get
+
+      }//end of if
+    }//end of loadSpecifiedPage
+
+    function loadCartNumber(){
+      $.get("handleAddToCart.php?itemID=0&updateNumber=0",//url
+      function(data){
+        $("#cartNum").html("("+data+")");
+      }//end of callback function
+    );//end of get
+
+    }//end of loadCartNumber
+
+    function addToCart(elem){
+      $.get("handleAddToCart.php?itemID="+$(elem).parent().parent().attr('id')+"&updateNumber=1",//url
+      function(data){
+        $("#cartNum").html("("+data+")");
+      }//end of callback function
+    );//end of get
+    }//end of addToCart
+
+    function loadCartContent(){
+      $("#category").remove();
+      $("#items").removeClass('col-9');
+      $("#items").addClass('col-12');
+      $("#items").html("<h2>Shopping cart</h2>");
+      $("#items").append("<div class='col-12'><h4 id=Price>Price:</h4><h4 id=Quantity>Quantity:</h4></div>");
+      $.get("handleCartContent.php",//url
+      function(data){
+        var totalPrice = 0;
+        var totalItem = 0;
+        for (i=0; i<data.length; i++){
+          var currentQuantity = parseInt(data[i].itemCount);
+          var perPrice = parseFloat(data[i].itemPrice);
+          var totalItem = totalItem + currentQuantity;
+          totalPrice = totalPrice + perPrice * currentQuantity;
+          $("#items").append("<div class=itemBox id="+data[i].itemID+">"
+           +"<img id=itemImage class='col-3' src="+data[i].itemImage+">"
+           +"<div id=itemInfo2 class='col-4'><h4>"+data[i].itemName+"</h4>"
+           +"<textarea disabled id=itemDescription>"+data[i].itemDescription+"</textarea></div>"
+           +"<h4 id=itemPrice class='col-2'>HKD "+perPrice+"</h4>"
+           +"<input id=itemCount class='col-2' type=number value="+currentQuantity+
+           " min=0 store="+currentQuantity+" onchange=changeCart(this,this.value,"+perPrice+")>"
+           +"</div>");
+        }//end of for
+        var totalPrice2 = parseFloat(totalPrice).toFixed(2);
+        $("#items").append("<h5 id=totalItem>Cart subtotal ("+totalItem+"item(s)): $</h5>");
+        $("#items").append("<h5 id=totalPrice style='display:inline-block;'>"+totalPrice2+"</h5>");
+        $("#items").append("<span id=checkOut><input id=check type=submit value='Proceed to check out>' onclick=checkOut("+totalItem+","+totalPrice2+")></span>");
+      },//end of callback function
+      "json"//return data type
+    );//end of get
+    }//end of loadCartContent
+
+
+    function changeCart(elem, update, perPrice){
+      if (update >= 0){
+        var updateNumber = parseInt(update,10) - parseInt($(elem).attr('store'),10);
+        var newTotalPrice = parseFloat(parseFloat($("#totalPrice").html()) + perPrice*updateNumber).toFixed(2);
+        var id =$(elem).parent().attr('id');
+        $.get("handleAddToCart.php?itemID="+id+"&updateNumber="+updateNumber,//url
+        function(data){
+          $("#cartNum").html("("+data+")");
+          $("#totalItem").html("Cart subtotal ("+data+"item(s)): $");
+          $("#"+id).find("input").attr('store', update);
+          $("#checkOut").html("<input id=check type=submit value='Proceed to check out>' onclick=checkOut("+data+","+newTotalPrice+")>");
+          //$("#"+id).find("input").attr('onchange', "changeCart(this,"+update+",this.value,"+perPrice);
+        }//end of callback function
+      );//end of get
+        $("#totalPrice").html(newTotalPrice);
+      }
+
+    }//end of changeCart
+
+    function checkOut(totalItem, totalPrice){
+      $.get("handleAddToCart.php?itemID=-1&updateNumber=0",//url
+      function(data){
+        $("#cartNum").html("("+data+")");
+      }
+    );//end of get
+    $("#items").html("<h3 style='text-align:center;'>You have successfully placed order for "+totalItem+" item(s)</h3>");
+    $("#items").append("<h3 style='text-align:center; margin-bottom:10em;'>$"+totalPrice+" paid</h3>");
+    $("#items").append("<a href=index.html>continue browsing ></a>");
+    }//end of checkOut
+
+    function appendItems1(data){
+      $("#items").append("<div class=itemBox id="+data[i].itemID+">"
+       +"<img id=itemImage class='col-4' src="+data[i].itemImage+">"
+       +"<div id=itemInfo class='col-8'><h4>"+data[i].itemName+"</h4>"
+       +"<h4>HKD "+data[i].itemPrice+"</h4>"
+       +"<textarea disabled id=itemDescription>"+data[i].itemDescription+"</textarea>"
+       +"<input id=submit type=submit value='Add to Cart' onclick=addToCart(this)></div>"
+       +"</div>");
+    }//end of appendItems1
+    function appendItems2(data, value, maxPage, category){
+      $("#items").append("<a id=pageButton1 onclick=loadPreviousPage('"+category+"')> < Previous Page </a>"
+      +"<span id=pageText>Page</span> <input id=page type=number value="+value+" min=1 max="+maxPage+" onchange=loadSpecifiedPage(this.value,'"+category+"')> of "+ maxPage
+      +"<a id=pageButton2 onclick=loadNextPage('"+category+"')>Next Page ></a></div>");
+    }//end of appendItems2
+
+    </script>
+  </head>
+  <body>
+    <div id="heading" class='col-12'>
+      <a href="index.html"><h1 id="headName">SHOPPING CENTER</h1></a>
+      <img src=images/icon.png id="cartIcon">
+        <p id="cartNum"></p>
+    </div>
+    <div id="category" class='col-3'></div>
+    <div id='items' class='col-9'></div>
+  </body>
+</html>

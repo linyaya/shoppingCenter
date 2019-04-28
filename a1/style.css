@@ -1,0 +1,172 @@
+#category{
+  float: left;
+}
+
+#items{
+  float: right;
+}
+
+#headName{
+  display: inline-block;
+    text-decoration: none;
+    color: black;
+    font-size: 2.5em;
+    width: 80%;
+    text-align: center;
+}
+
+#cartIcon{
+  width: 5%;
+  font-size: 0.3em;
+}
+
+#cartNum{
+  display: inline-block;
+}
+#itemCategory{
+  border: 2px solid black;
+    border-radius: 5px;
+    margin-left: 20%;
+    margin-right: 20%;
+    text-align: center;
+}
+
+.itemBox{
+  height:300px;
+  margin: 10px;
+}
+
+#itemImage{
+    float: left;
+    max-height: 300px;
+    margin-left: 2.5%;
+    margin-right: 2.5%;
+    display: inline-block;
+}
+#itemInfo{
+  float:right;
+  max-height:300px;
+}
+#pageButton1{
+    float:left;
+    margin-left: 10%;
+    display: inline-block;
+        margin-right: 10%;
+
+}
+#pageButton2{
+    float: right;
+    margin-right: 10%;
+    display: inline-block;
+}
+
+#page{
+  width:8%;
+}
+
+#Price{
+  display: inline-block;
+margin-left: 65%;
+}
+#Quantity{
+  display: inline-block;
+    margin-left: 15%;
+}
+#itemInfo2{
+  max-height:300px;
+  display: inline-block;
+}
+
+#itemPrice{
+  display: inline-block;
+  margin-left: 5%;
+}
+#itemCount{
+  display: inline-block;
+  margin-left: 2.5%;
+    margin-right: 2.5%;
+}
+#checkOut{
+  margin-left:45%;
+  display:block;
+}
+
+#itemDescription{
+  display: block;
+    margin-block-start: 5%;
+    margin-block-end: 5%;
+    font-weight: bold;
+    border: 0px;
+    width: 100%;
+    height: 130px;
+    color: black;
+    background-color: white;
+}
+#totalItem{
+  display: inline-block;
+    margin-left: 40%;
+}
+
+#headName:hover, #itemCategory:hover, #pageButton1:hover, #pageButton2:hover, #submit:hover, #check:hover{
+  color:#FFA07A;
+}
+#headName:active, #itemCategory:active, #pageButton1:active, #pageButton2:active{
+  color: #DC143C;
+}
+
+#cartIcon:hover{
+  background-color: #FFA07A;
+}
+#cartIcon:active{
+  background-color: #DC143C;
+}
+
+/* for desktop */
+.col-2 {width: 15%;}
+.col-3 {width: 25%;}
+.col-4 {width: 30%;}
+.col-6 {width: 50%;}
+.col-8 {width: 60%;}
+.col-9 {width: 75%;}
+.col-12 {width: 100%;}
+
+
+
+@media only screen and (max-width: 580px){
+  [class*="col-"] {
+  width: 100%; }
+.itemBox{
+    height:500px;
+    margin:10px;
+}
+#itemImage{
+  width:auto;
+  max-height: 200px;
+}
+#pageButton1, #pageButton2{
+  display: block;
+    margin-left: 40%;
+    float: none;
+}
+#pageText{
+  margin-left: 70%;
+}
+
+#Price{
+  display: none;
+}
+#Quantity{
+  display: none;
+}
+#itemPrice{
+  margin-left: 0px;
+}
+#itemCount{
+  width: 20%;
+    margin-left: 0px;
+}
+#totalItem{
+  display: inline-block;
+    margin-left: 10%;
+}
+}
